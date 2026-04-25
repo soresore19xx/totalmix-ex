@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: -apple-system, sans-serif; font-size: 13px; color: #ccc; background: transparent; margin: 0; padding: 8px; }
+    .row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+    label { min-width: 90px; color: #bbb; }
+    input[type="text"], input[type="number"], select { flex: 1; background: #2a2a2a; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 4px 6px; font-size: 13px; }
+    .hint { color: #888; font-size: 11px; margin-top: -4px; margin-bottom: 6px; padding-left: 98px; }
+    hr { border: none; border-top: 1px solid #3a3a3a; margin: 8px 0; }
+    .section { color: #aaa; font-size: 11px; margin-bottom: 6px; }
+    button { background: #3a3a3a; color: #ddd; border: 1px solid #555; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+    button:hover { background: #4a4a4a; }
+    #devScanStatus { font-size: 11px; color: #888; margin-left: 6px; }
+  </style>
+</head>
+<body>
+  <div class="section">Connection</div>
+  <div class="row">
+    <label>Device</label>
+    <select id="deviceName">
+      <option value="">-- Manual --</option>
+    </select>
+  </div>
+  <div class="row">
+    <label></label>
+    <button onclick="startDeviceScan()">Scan RME Devices</button>
+    <span id="devScanStatus"></span>
+  </div>
+  <div class="row">
+    <label>Host IP</label>
+    <input type="text" id="host" placeholder="127.0.0.1">
+  </div>
+  <div class="row">
+    <label>Send Port</label>
+    <input type="number" id="sendPort" placeholder="7001" min="1" max="65535">
+  </div>
+  <div class="hint">TotalMix FX OSC incoming port</div>
+  <div class="row">
+    <label>Recv Port</label>
+    <input type="number" id="recvPort" placeholder="9001" min="1" max="65535">
+  </div>
+  <div class="hint">Remote Controller Address outgoing port</div>
+  <hr>
+  <div class="section">Label</div>
+  <div class="row">
+    <label>Text</label>
+    <input type="text" id="label" placeholder="(none)">
+  </div>
+  <div class="hint">Empty = use Stream Deck default title</div>
+  <div class="row">
+    <label>Font</label>
+    <select id="labelFont">
+      <option value="Arial">Arial</option>
+      <option value="Arial Black">Arial Black</option>
+      <option value="Helvetica">Helvetica</option>
+      <option value="Tahoma">Tahoma</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Impact">Impact</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Size (px)</label>
+    <input type="number" id="labelSize" class="short" min="10" max="72" value="24">
+  </div>
+</body>
+<script>
+  var websocket, uuid;
+
+  function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent) {
+    uuid = inUUID;
+    websocket = new WebSocket('ws://127.0.0.1:' + inPort);
+    websocket.onopen = function() {
+      websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: inUUID }));
+      websocket.send(JSON.stringify({ event: 'getSettings', context: uuid }));
+    };
+    websocket.onmessage = function(evt) {
+      var msg = JSON.parse(evt.data);
+      if (msg.event === 'didReceiveSettings') {
+        var s = msg.payload.settings || {};
+        setDeviceOption(s.deviceName || '');
+        document.getElementById('host').value      = s.host      || '127.0.0.1';
+        document.getElementById('sendPort').value  = s.sendPort  || 7001;
+        document.getElementById('recvPort').value  = s.recvPort  || 9001;
+        document.getElementById('label').value     = s.label     || '';
+        document.getElementById('labelFont').value = s.labelFont || 'Arial';
+        document.getElementById('labelSize').value = s.labelSize || 24;
+      }
+      if (msg.event === 'sendToPropertyInspector' && msg.payload && msg.payload.action === 'scanDevicesResult') {
+        handleDeviceScanResult(msg.payload.devices || []);
+      }
+    };
+  }
+
+  function setDeviceOption(name) {
+    var sel = document.getElementById('deviceName');
+    if (name && !sel.querySelector('option[value="' + name + '"]')) {
+      var opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.appendChild(opt);
+    }
+    sel.value = name;
+  }
+
+  function startDeviceScan() {
+    document.getElementById('devScanStatus').textContent = 'Scanning...';
+    websocket.send(JSON.stringify({ event: 'sendToPlugin', context: uuid, payload: { action: 'scanDevices' } }));
+  }
+
+  function handleDeviceScanResult(devices) {
+    document.getElementById('devScanStatus').textContent = '';
+    var sel = document.getElementById('deviceName');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">-- Manual --</option>';
+    devices.forEach(function(d) {
+      var opt = document.createElement('option');
+      opt.value = d.name; opt.textContent = d.name;
+      sel.appendChild(opt);
+    });
+    if (current) setDeviceOption(current);
+    if (!devices.length) document.getElementById('devScanStatus').textContent = 'No RME devices found';
+  }
+
+  document.getElementById('deviceName').addEventListener('change', function() {
+    if (this.value) document.getElementById('host').value = '127.0.0.1';
+    save();
+  });
+
+  function save() {
+    websocket.send(JSON.stringify({
+      event: 'setSettings', context: uuid,
+      payload: {
+        deviceName: document.getElementById('deviceName').value,
+        host:       document.getElementById('host').value.trim() || '127.0.0.1',
+        sendPort:   parseInt(document.getElementById('sendPort').value) || 7001,
+        recvPort:   parseInt(document.getElementById('recvPort').value) || 9001,
+        label:      document.getElementById('label').value,
+        labelFont:  document.getElementById('labelFont').value || 'Arial',
+        labelSize:  parseInt(document.getElementById('labelSize').value) || 24
+      }
+    }));
+  }
+
+  ['host','sendPort','recvPort','label','labelFont','labelSize'].forEach(function(id) {
+    document.getElementById(id).addEventListener('change', save);
+  });
+</script>
+</html>

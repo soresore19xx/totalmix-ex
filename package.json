@@ -1,0 +1,21 @@
+{
+  "name": "com.hogehoge.totalmix-ex",
+  "version": "1.0.0",
+  "description": "TotalMix Controller — RME TotalMix FX plugin for Stream Deck (macOS)",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "watch": "rollup -c --bundleConfigAsCjs -w --watch.onEnd=\"streamdeck restart com.hogehoge.totalmix-ex\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@elgato/streamdeck": "^2.0.4",
+    "@rollup/plugin-commonjs": "^26.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^25.5.0",
+    "rollup": "^4.0.0",
+    "tslib": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}

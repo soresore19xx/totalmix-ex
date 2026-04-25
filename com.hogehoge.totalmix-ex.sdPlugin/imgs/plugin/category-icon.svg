@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- background -->
+  <rect width="100" height="100" rx="12" fill="#1a1a2e"/>
+
+  <!-- fader tracks (7本) -->
+  <rect x="10" y="18" width="4" height="60" rx="2" fill="#2a2a4a"/>
+  <rect x="24" y="18" width="4" height="60" rx="2" fill="#2a2a4a"/>
+  <rect x="38" y="18" width="4" height="60" rx="2" fill="#2a2a4a"/>
+  <rect x="52" y="18" width="4" height="60" rx="2" fill="#2a2a4a"/>
+  <rect x="66" y="18" width="4" height="60" rx="2" fill="#2a2a4a"/>
+  <rect x="80" y="18" width="4" height="60" rx="2" fill="#2a2a4a"/>
+
+  <!-- fader knobs (色付き) -->
+  <rect x="7"  y="52" width="10" height="6" rx="3" fill="#FF6B6B"/>
+  <rect x="21" y="38" width="10" height="6" rx="3" fill="#FFD93D"/>
+  <rect x="35" y="44" width="10" height="6" rx="3" fill="#6BCB77"/>
+  <rect x="49" y="30" width="10" height="6" rx="3" fill="#4D96FF"/>
+  <rect x="63" y="48" width="10" height="6" rx="3" fill="#C77DFF"/>
+  <rect x="77" y="36" width="10" height="6" rx="3" fill="#FF9F43"/>
+
+  <!-- VUメーター風グロー (下部) -->
+  <rect x="10" y="68" width="4" height="8" rx="1" fill="#6BCB77" opacity="0.9"/>
+  <rect x="24" y="68" width="4" height="8" rx="1" fill="#6BCB77" opacity="0.9"/>
+  <rect x="38" y="68" width="4" height="4" rx="1" fill="#FFD93D" opacity="0.9"/>
+  <rect x="38" y="72" width="4" height="4" rx="1" fill="#6BCB77" opacity="0.9"/>
+  <rect x="52" y="68" width="4" height="8" rx="1" fill="#6BCB77" opacity="0.9"/>
+  <rect x="66" y="68" width="4" height="4" rx="1" fill="#FF6B6B" opacity="0.9"/>
+  <rect x="66" y="72" width="4" height="4" rx="1" fill="#FFD93D" opacity="0.9"/>
+  <rect x="80" y="68" width="4" height="8" rx="1" fill="#6BCB77" opacity="0.9"/>
+
+  <!-- ラベル -->
+  <text x="50" y="95" font-size="9" text-anchor="middle" font-family="Arial" font-weight="bold" fill="#aaaacc">TotalMix</text>
+</svg>

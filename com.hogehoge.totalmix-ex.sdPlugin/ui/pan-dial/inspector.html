@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: -apple-system, sans-serif; font-size: 13px; color: #ccc; background: transparent; margin: 0; padding: 8px; }
+    .row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+    label { min-width: 90px; color: #bbb; }
+    input[type="text"], input[type="number"], select { flex: 1; background: #2a2a2a; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 4px 6px; font-size: 13px; }
+    input[type="number"].short { max-width: 70px; flex: none; }
+    .hint { color: #888; font-size: 11px; margin-top: -4px; margin-bottom: 6px; padding-left: 98px; }
+    hr { border: none; border-top: 1px solid #3a3a3a; margin: 8px 0; }
+    .section { color: #aaa; font-size: 11px; margin-bottom: 6px; }
+    button { background: #3a3a3a; color: #ddd; border: 1px solid #555; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+    button:hover { background: #4a4a4a; }
+    #devScanStatus { font-size: 11px; color: #888; margin-left: 6px; }
+    #scanStatus { font-size: 11px; color: #888; margin-left: 6px; }
+    #scanResult { display: none; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="section">Connection</div>
+  <div class="row">
+    <label>Device</label>
+    <select id="deviceName"><option value="">-- Manual --</option></select>
+  </div>
+  <div class="row">
+    <label></label>
+    <button onclick="startDeviceScan()">Scan RME Devices</button>
+    <span id="devScanStatus"></span>
+  </div>
+  <div class="row">
+    <label>Host IP</label>
+    <input type="text" id="host" placeholder="127.0.0.1">
+  </div>
+  <div class="row">
+    <label>Send Port</label>
+    <input type="number" id="sendPort" class="short" placeholder="7001" min="1" max="65535">
+  </div>
+  <div class="hint">TotalMix FX OSC incoming port</div>
+  <div class="row">
+    <label>Recv Port</label>
+    <input type="number" id="recvPort" class="short" placeholder="9001" min="1" max="65535">
+  </div>
+  <div class="hint">Remote Controller Address outgoing port</div>
+  <hr>
+  <div class="section">Channel</div>
+  <div class="row">
+    <label>Bus</label>
+    <select id="bus">
+      <option value="Input">Hardware Inputs</option>
+      <option value="Playback">Software Playback</option>
+      <option value="Output">Hardware Outputs</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Channel</label>
+    <input type="number" id="channel" class="short" min="1" max="24" value="1">
+  </div>
+  <div class="hint">Position in TotalMix FX (1–24, left to right)</div>
+  <div class="row">
+    <label></label>
+    <button onclick="startScan()">Scan Channels</button>
+    <span id="scanStatus"></span>
+  </div>
+  <div id="scanResult">
+    <div class="row">
+      <label>Select</label>
+      <select id="scanSelect" onchange="applyChannel()">
+        <option value="">-- pick channel --</option>
+      </select>
+    </div>
+  </div>
+  <div class="hint">Dial press resets pan to center (CTR)</div>
+  <hr>
+  <div class="section">LCD Title</div>
+  <div class="row">
+    <label>Label</label>
+    <input type="text" id="titleLabel" placeholder="Ch N Pan">
+  </div>
+  <div class="row">
+    <label>Font</label>
+    <select id="titleFont">
+      <option value="Arial">Arial</option>
+      <option value="Arial Black">Arial Black</option>
+      <option value="Helvetica">Helvetica</option>
+      <option value="Tahoma">Tahoma</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Impact">Impact</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Size (px)</label>
+    <input type="number" id="titleSize" class="short" min="6" max="40" value="12">
+  </div>
+  <div class="row">
+    <label>Color</label>
+    <input type="color" id="titleColor" value="#ffffff" style="width:50px;height:28px;padding:2px;cursor:pointer;">
+  </div>
+  <hr>
+  <div class="section">LCD</div>
+  <div class="row">
+    <label>Background</label>
+    <input type="color" id="lcdBg" value="#000000" style="width:50px;height:28px;padding:2px;cursor:pointer;">
+    <label style="min-width:auto;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="lcdTransparent" style="cursor:pointer;"> 透過</label>
+  </div>
+  <hr>
+  <div class="section">Gauge</div>
+  <div class="row">
+    <label>Fill</label>
+    <input type="color" id="gaugeFill" value="#FF9900" style="width:50px;height:28px;padding:2px;cursor:pointer;">
+  </div>
+  <div class="row">
+    <label>Background</label>
+    <input type="color" id="gaugeBg" value="#2a1a0a" style="width:50px;height:28px;padding:2px;cursor:pointer;">
+  </div>
+</body>
+<script>
+  var websocket, uuid;
+
+  function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent) {
+    uuid = inUUID;
+    websocket = new WebSocket('ws://127.0.0.1:' + inPort);
+    websocket.onopen = function() {
+      websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: inUUID }));
+      websocket.send(JSON.stringify({ event: 'getSettings', context: uuid }));
+    };
+    websocket.onmessage = function(evt) {
+      var msg = JSON.parse(evt.data);
+      if (msg.event === 'didReceiveSettings') {
+        var s = msg.payload.settings || {};
+        setDeviceOption(s.deviceName || '');
+        document.getElementById('host').value     = s.host     || '127.0.0.1';
+        document.getElementById('sendPort').value = s.sendPort || 7001;
+        document.getElementById('recvPort').value = s.recvPort || 9001;
+        document.getElementById('bus').value       = s.bus       || 'Input';
+        document.getElementById('channel').value   = s.channel   || 1;
+        document.getElementById('titleLabel').value  = s.titleLabel  || '';
+        document.getElementById('titleFont').value   = s.titleFont   || 'Arial';
+        document.getElementById('titleSize').value   = s.titleSize   || 12;
+        document.getElementById('titleColor').value  = s.titleColor  || '#ffffff';
+        document.getElementById('gaugeFill').value   = s.gaugeFill   || '#FF9900';
+        document.getElementById('gaugeBg').value     = s.gaugeBg     || '#2a1a0a';
+        var lcdTrans = s.lcdBg === 'transparent';
+        document.getElementById('lcdTransparent').checked = lcdTrans;
+        document.getElementById('lcdBg').disabled = lcdTrans;
+        if (!lcdTrans) document.getElementById('lcdBg').value = s.lcdBg || '#000000';
+      }
+      if (msg.event === 'sendToPropertyInspector' && msg.payload) {
+        if (msg.payload.action === 'scanDevicesResult') handleDeviceScanResult(msg.payload.devices || []);
+        if (msg.payload.action === 'scanResult') handleScanResult(msg.payload);
+      }
+    };
+  }
+
+  function setDeviceOption(name) {
+    var sel = document.getElementById('deviceName');
+    if (name && !sel.querySelector('option[value="' + name + '"]')) {
+      var opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt);
+    }
+    sel.value = name;
+  }
+
+  function startDeviceScan() {
+    document.getElementById('devScanStatus').textContent = 'Scanning...';
+    websocket.send(JSON.stringify({ event: 'sendToPlugin', context: uuid, payload: { action: 'scanDevices' } }));
+  }
+
+  function handleDeviceScanResult(devices) {
+    document.getElementById('devScanStatus').textContent = '';
+    var sel = document.getElementById('deviceName');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">-- Manual --</option>';
+    devices.forEach(function(d) { var opt = document.createElement('option'); opt.value = d.name; opt.textContent = d.name; sel.appendChild(opt); });
+    if (current) setDeviceOption(current);
+    if (!devices.length) document.getElementById('devScanStatus').textContent = 'No RME devices found';
+  }
+
+  function startScan() {
+    document.getElementById('scanStatus').textContent = 'Scanning...';
+    document.getElementById('scanResult').style.display = 'none';
+    websocket.send(JSON.stringify({
+      event: 'sendToPlugin', context: uuid,
+      payload: {
+        action:   'scan',
+        host:     document.getElementById('host').value.trim() || '127.0.0.1',
+        sendPort: parseInt(document.getElementById('sendPort').value) || 7001,
+        recvPort: parseInt(document.getElementById('recvPort').value) || 9001
+      }
+    }));
+  }
+
+  function handleScanResult(payload) {
+    document.getElementById('scanStatus').textContent = '';
+    if (payload.error) { document.getElementById('scanStatus').textContent = 'Error: ' + payload.error; return; }
+    var result = payload.result || {};
+    var sel = document.getElementById('scanSelect');
+    sel.innerHTML = '<option value="">-- pick channel --</option>';
+    ['Input', 'Playback', 'Output'].forEach(function(bus) {
+      var chs = result[bus];
+      if (!chs || !chs.length) return;
+      var grp = document.createElement('optgroup');
+      grp.label = bus === 'Input' ? 'Hardware Inputs' : bus === 'Playback' ? 'Software Playback' : 'Hardware Outputs';
+      chs.forEach(function(ch) {
+        var opt = document.createElement('option');
+        opt.value = bus + ':' + ch.index;
+        opt.textContent = 'ch ' + ch.index + ': ' + ch.name;
+        grp.appendChild(opt);
+      });
+      sel.appendChild(grp);
+    });
+    document.getElementById('scanResult').style.display = '';
+  }
+
+  function applyChannel() {
+    var val = document.getElementById('scanSelect').value;
+    if (!val) return;
+    var parts = val.split(':');
+    document.getElementById('bus').value     = parts[0];
+    document.getElementById('channel').value = parts[1];
+    save();
+  }
+
+  document.getElementById('deviceName').addEventListener('change', function() { if (this.value) document.getElementById('host').value = '127.0.0.1'; save(); });
+
+  function save() {
+    websocket.send(JSON.stringify({
+      event: 'setSettings', context: uuid,
+      payload: {
+        deviceName: document.getElementById('deviceName').value,
+        host:       document.getElementById('host').value.trim() || '127.0.0.1',
+        sendPort:   parseInt(document.getElementById('sendPort').value) || 7001,
+        recvPort:   parseInt(document.getElementById('recvPort').value) || 9001,
+        bus:        document.getElementById('bus').value,
+        channel:    parseInt(document.getElementById('channel').value) || 1,
+        titleLabel: document.getElementById('titleLabel').value,
+        titleFont:  document.getElementById('titleFont').value   || 'Arial',
+        titleSize:  parseInt(document.getElementById('titleSize').value)  || 12,
+        titleColor: document.getElementById('titleColor').value  || '#ffffff',
+        gaugeFill:  document.getElementById('gaugeFill').value   || '#FF9900',
+        gaugeBg:    document.getElementById('gaugeBg').value     || '#2a1a0a',
+        lcdBg:      document.getElementById('lcdTransparent').checked ? 'transparent' : (document.getElementById('lcdBg').value || '#000000')
+      }
+    }));
+  }
+
+  ['host','sendPort','recvPort','bus','channel','titleLabel','titleFont','titleSize','titleColor','gaugeFill','gaugeBg','lcdBg'].forEach(function(id) {
+    document.getElementById(id).addEventListener('change', save);
+  });
+  document.getElementById('lcdTransparent').addEventListener('change', function() {
+    document.getElementById('lcdBg').disabled = this.checked;
+    save();
+  });
+</script>
+</html>

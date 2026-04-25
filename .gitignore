@@ -1,0 +1,4 @@
+node_modules/
+com.hogehoge.totalmix-ex.sdPlugin/bin/index.js.map
+com.hogehoge.totalmix-ex.sdPlugin/logs/
+conversation-*.txt

@@ -1,0 +1,314 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "com.hogehoge.totalmix-ex",
+  "Name": "TotalMix Controller",
+  "Version": "1.0.0.0",
+  "Author": "hogehoge",
+  "Description": "RME TotalMix FX controller for Stream Deck via OSC.",
+  "Category": "TotalMix Controller",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/index.js",
+  "Icon": "imgs/plugin/category-icon",
+  "Actions": [
+    {
+      "UUID": "com.hogehoge.totalmix-ex.global-mute",
+      "Name": "Global Mute",
+      "Icon": "imgs/actions/global-mute/action",
+      "Tooltip": "Toggle Global Mute on TotalMix FX",
+      "PropertyInspectorPath": "ui/global/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/global-mute/action-off",
+          "Title": "G.Mute"
+        },
+        {
+          "Image": "imgs/actions/global-mute/action-on",
+          "Title": "G.Mute"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.global-solo",
+      "Name": "Global Solo",
+      "Icon": "imgs/actions/global-solo/action",
+      "Tooltip": "Toggle Global Solo on TotalMix FX",
+      "PropertyInspectorPath": "ui/global/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/global-solo/action-off",
+          "Title": "G.Solo"
+        },
+        {
+          "Image": "imgs/actions/global-solo/action-on",
+          "Title": "G.Solo"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-mute",
+      "Name": "Channel Mute",
+      "Icon": "imgs/actions/ch-mute/action",
+      "Tooltip": "Toggle mute for a specific channel in TotalMix FX",
+      "PropertyInspectorPath": "ui/channel/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-mute/action-off",
+          "Title": "Mute"
+        },
+        {
+          "Image": "imgs/actions/ch-mute/action-on",
+          "Title": "Mute"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-solo",
+      "Name": "Channel Solo",
+      "Icon": "imgs/actions/ch-solo/action",
+      "Tooltip": "Toggle solo for a specific channel in TotalMix FX",
+      "PropertyInspectorPath": "ui/channel/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-solo/action-off",
+          "Title": "Solo"
+        },
+        {
+          "Image": "imgs/actions/ch-solo/action-on",
+          "Title": "Solo"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-vol-up",
+      "Name": "Channel Volume Up",
+      "Icon": "imgs/actions/ch-vol-up/action",
+      "Tooltip": "Increase volume of a specific channel in TotalMix FX",
+      "PropertyInspectorPath": "ui/volume/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-vol-up/action",
+          "Title": "Vol+"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-vol-down",
+      "Name": "Channel Volume Down",
+      "Icon": "imgs/actions/ch-vol-down/action",
+      "Tooltip": "Decrease volume of a specific channel in TotalMix FX",
+      "PropertyInspectorPath": "ui/volume/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-vol-down/action",
+          "Title": "Vol-"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-vol-dial",
+      "Name": "Channel Volume Dial",
+      "Icon": "imgs/actions/ch-vol-up/action",
+      "Tooltip": "Dial to adjust channel volume; press to toggle mute",
+      "PropertyInspectorPath": "ui/volume-dial/inspector.html",
+      "Controllers": [
+        "Encoder"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-vol-up/action",
+          "Title": "Vol Dial"
+        }
+      ],
+      "Encoder": {
+        "layout": "layouts/vol-dial.json",
+        "TriggerDescription": {
+          "Rotate": "Adjust channel volume",
+          "Push": "Toggle mute"
+        }
+      }
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.bus-select",
+      "Name": "Bus Select",
+      "Icon": "imgs/actions/bus-select/action",
+      "Tooltip": "Switch TotalMix FX view bus (Input / Playback / Output)",
+      "PropertyInspectorPath": "ui/bus-select/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/bus-select/action-off",
+          "Title": "Bus"
+        },
+        {
+          "Image": "imgs/actions/bus-select/action-on",
+          "Title": "Bus"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.snapshot",
+      "Name": "Snapshot",
+      "Icon": "imgs/actions/snapshot/action",
+      "Tooltip": "Recall a TotalMix FX snapshot (1–8)",
+      "PropertyInspectorPath": "ui/snapshot/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/snapshot/action",
+          "Title": "Snap"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-phantom",
+      "Name": "Channel Phantom",
+      "Icon": "imgs/actions/ch-phantom/action",
+      "Tooltip": "Toggle 48V phantom power for a hardware input channel",
+      "PropertyInspectorPath": "ui/phantom/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-phantom/action-off",
+          "Title": "48V"
+        },
+        {
+          "Image": "imgs/actions/ch-phantom/action-on",
+          "Title": "48V"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.main-vol-up",
+      "Name": "Main Volume Up",
+      "Icon": "imgs/actions/main-vol-up/action",
+      "Tooltip": "Increase TotalMix FX main/master output volume",
+      "PropertyInspectorPath": "ui/main-vol/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/main-vol-up/action",
+          "Title": "M.Vol+"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.main-vol-down",
+      "Name": "Main Volume Down",
+      "Icon": "imgs/actions/main-vol-down/action",
+      "Tooltip": "Decrease TotalMix FX main/master output volume",
+      "PropertyInspectorPath": "ui/main-vol/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/main-vol-down/action",
+          "Title": "M.Vol-"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.ch-pan-dial",
+      "Name": "Channel Pan Dial",
+      "Icon": "imgs/actions/ch-pan-dial/action",
+      "Tooltip": "Dial to adjust channel pan; press to reset to center",
+      "PropertyInspectorPath": "ui/pan-dial/inspector.html",
+      "Controllers": [
+        "Encoder"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/ch-pan-dial/action",
+          "Title": "Pan"
+        }
+      ],
+      "Encoder": {
+        "layout": "layouts/pan-dial.json",
+        "TriggerDescription": {
+          "Rotate": "Adjust channel pan",
+          "Push": "Reset pan to center"
+        }
+      }
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.dim",
+      "Name": "Dim",
+      "Icon": "imgs/actions/dim/action",
+      "Tooltip": "Toggle Dim on TotalMix FX",
+      "PropertyInspectorPath": "ui/dim/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/dim/action-off",
+          "Title": "Dim"
+        },
+        {
+          "Image": "imgs/actions/dim/action-on",
+          "Title": "Dim"
+        }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.totalmix-ex.talkback",
+      "Name": "Talkback",
+      "Icon": "imgs/actions/talkback/action",
+      "Tooltip": "Toggle Talkback on TotalMix FX (hold mode optional)",
+      "PropertyInspectorPath": "ui/talkback/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/talkback/action-off",
+          "Title": "Talk"
+        },
+        {
+          "Image": "imgs/actions/talkback/action-on",
+          "Title": "Talk"
+        }
+      ]
+    }
+  ],
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.15"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "6.6"
+  },
+  "SDKVersion": 2,
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  }
+}

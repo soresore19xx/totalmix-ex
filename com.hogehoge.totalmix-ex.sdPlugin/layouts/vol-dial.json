@@ -1,0 +1,20 @@
+{
+  "id": "vol-dial",
+  "items": [
+    {
+      "key": "titlePx",
+      "type": "pixmap",
+      "rect": [0, 1, 120, 51]
+    },
+    {
+      "key": "value",
+      "type": "pixmap",
+      "rect": [120, 1, 80, 51]
+    },
+    {
+      "key": "gauge",
+      "type": "pixmap",
+      "rect": [0, 52, 200, 47]
+    }
+  ]
+}
